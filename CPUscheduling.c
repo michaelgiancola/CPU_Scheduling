@@ -24,29 +24,29 @@ void rr(int qIndex, int processCount, Proc qArray[], int tq);
 //change input file name
 int main(){
 
-	FILE *fp;							//input file pointer
-	char* filename = "cpu_scheduling_input_file.txt";		//name of input file
-	int queueNum;							//variable to identify which queue is which
+	FILE *fp;								//input file pointer
+	char* filename = "cpu_scheduling_input_file.txt";			//name of input file
+	int queueNum;								//variable to identify which queue is which
 	int qCount = 0;
 	int pCount = 0;
 
-	fp = fopen(filename, "r");					//opens the input file with read permissions
-	if(fp == NULL){							//check to see if input file was unable to open
+	fp = fopen(filename, "r");						//opens the input file with read permissions
+	if(fp == NULL){								//check to see if input file was unable to open
 		printf("File %s could not be opened", filename);
 		fprintf(output_fp,"File %s could not be opened", filename);	//print to output file as well pointed at by output_fp
 		return 1;
 	}
 
-	output_fp = fopen("cpu_scheduling_output_file.txt", "w");	//opens/creates output file with write permissions
-	if(output_fp == NULL){						//check to see if output file was unable to open
+	output_fp = fopen("cpu_scheduling_output_file.txt", "w");		//opens/creates output file with write permissions
+	if(output_fp == NULL){							//check to see if output file was unable to open
 		printf("Output file could not be opened");
 		fprintf(output_fp,"Output file could not be opened");
 		return 1;
 	}
 
-	//this loop gets the amount of queues in the file
+	
 	char c;
-	while(fscanf(fp, "%c", &c) != EOF){
+	while(fscanf(fp, "%c", &c) != EOF){					//this loop gets the amount of queues in the file
 		if(c == 't'){
 			fgetc(fp);
 		}
@@ -55,7 +55,7 @@ int main(){
 		}
 	}	
 
-	fclose(fp);//close file so that when I reopen, I can read from the beginning again
+	fclose(fp);								//close file so that when I reopen, I can read from the beginning again
 
 	fp = fopen(filename, "r");
         if(fp == NULL){
@@ -64,11 +64,11 @@ int main(){
                 return 1;
         }
 
-	//this loop gets me the number of processes in each queue by searching for the p character in each queue
+	
 	int *processCount = malloc(sizeof(int)*qCount);
 	int i = 0;
 	fgetc(fp);
-	while(fscanf(fp, "%c", &c) != EOF){
+	while(fscanf(fp, "%c", &c) != EOF){					//this loop gets me the number of processes in each queue by searching for the p character in each queue
 		if(c == 'p'){
 			pCount++;
 			processCount[i] = pCount;
@@ -82,16 +82,16 @@ int main(){
                 }
         }
 
-	fclose(fp);//close file so that when I reopen, I can read from the beginning again
+	fclose(fp);								//close file so that when I reopen, I can read from the beginning again
 	
-	Proc ** qArray = malloc(sizeof(Proc *)*qCount);		//creates a dynamic 2-D array of structures (rows are queues and columns are processes)
+	Proc ** qArray = malloc(sizeof(Proc *)*qCount);				//creates a dynamic 2-D array of structures (rows are queues and columns are processes)
 
 	int j;
-	for(j=0; j<qCount; j++){				//loop through the 2D array and create a jagged array since # of processes can change
+	for(j=0; j<qCount; j++){						//loop through the 2D array and create a jagged array since # of processes can change
 		qArray[j] = malloc(sizeof(Proc)*processCount[j]);
 	}
 	
-	int *tqs = malloc(sizeof(int)*qCount);			//dynamic array for the time quantums for a variable amount of queues
+	int *tqs = malloc(sizeof(int)*qCount);					//dynamic array for the time quantums for a variable amount of queues
 	
 	
 	fp = fopen(filename, "r");
@@ -151,9 +151,9 @@ int main(){
 			}
 	}
 
-	for(queueCounter = 0; queueCounter < qCount; queueCounter++){			//loops through queues and calls each scheduling algorithim
-		fcfs(queueCounter, processCount[queueCounter], qArray[queueCounter]);	//prints all info associated with the FCFS alogrithm
-		sjf(queueCounter, processCount[queueCounter], qArray[queueCounter]);	//prints all info associated with the SJF algorithm
+	for(queueCounter = 0; queueCounter < qCount; queueCounter++){					//loops through queues and calls each scheduling algorithim
+		fcfs(queueCounter, processCount[queueCounter], qArray[queueCounter]);			//prints all info associated with the FCFS alogrithm
+		sjf(queueCounter, processCount[queueCounter], qArray[queueCounter]);			//prints all info associated with the SJF algorithm
 		rr(queueCounter, processCount[queueCounter], qArray[queueCounter], tqs[queueCounter]);	//prints info associated with the RR algorithm
 	}
 		
@@ -171,21 +171,21 @@ int main(){
 	return 0;
 }
 
-void fcfs(int qIndex, int processCount, Proc qArray[]){			//FCFS scheduling algorithm implementation
+void fcfs(int qIndex, int processCount, Proc qArray[]){									//FCFS scheduling algorithm implementation
 	Proc *tempArray2 = malloc(sizeof(Proc)*processCount);	
 	int i;
 	int waitTime = 0;
 	double avgTime;
 	int waitSum = 0;
 
-	for(i = 0; i < processCount; i++){				//sets the passed through original array to the tempArray2 created in this function
+	for(i = 0; i < processCount; i++){										//sets the passed through original array to the tempArray2 created in this function
 		tempArray2[i] = qArray[i];
 	}
 
 	printf("\nReady Queue %d Applying FCFS Scheduling:\n\nOrder of selection by CPU:\n", qIndex+1);
 	fprintf(output_fp, "\nReady Queue %d Applying FCFS Scheduling:\n\nOrder of selection by CPU:\n", qIndex+1);	//print to output file as well
 
-	for(i = 0; i < processCount; i++){							//print the order of selection by CPU
+	for(i = 0; i < processCount; i++){										//print the order of selection by CPU
 		printf("p%d ", tempArray2[i].pNum);
 		fprintf(output_fp,"p%d ", tempArray2[i].pNum);
 	}
@@ -214,10 +214,10 @@ void fcfs(int qIndex, int processCount, Proc qArray[]){			//FCFS scheduling algo
 	printf("\n\nAverage waiting time = %.1f\n", avgTime);
 	fprintf(output_fp,"\n\nAverage waiting time = %.1f\n", avgTime);			//print avg wait time with one decimal place
 
-	free(tempArray2);	//free dynamic array called tempArray2
+	free(tempArray2);									//free dynamic array called tempArray2
 }
 
-void sjf(int qIndex, int processCount, Proc qArray[]){			//SJF Scheduling Alg implementation
+void sjf(int qIndex, int processCount, Proc qArray[]){				//SJF Scheduling Alg implementation
 	
 	Proc *tempArray = malloc(sizeof(Proc)*processCount);
 	int i;
@@ -228,11 +228,12 @@ void sjf(int qIndex, int processCount, Proc qArray[]){			//SJF Scheduling Alg im
         double avgTime;
         int waitSum = 0;
 
-	for(i = 0; i < processCount; i++){				//move contents from argument array into new created array
+	for(i = 0; i < processCount; i++){					//move contents from argument array into new created array
                 tempArray[i] = qArray[i];
         }
-						
-	for(j - 1; j >= 0; j--){	//my implementation of bubble sort algorithm to put the processes in SJF ready queue format based on burst time
+	
+	//my implementation of bubble sort algorithm to put the processes in SJF ready queue format based on burst time			
+	for(j - 1; j >= 0; j--){						
 		for(i = 0; i < end-1; i++){
 			if(tempArray[i].burstNum > tempArray[i+1].burstNum){
 				temp = tempArray[i+1];
@@ -280,17 +281,17 @@ void sjf(int qIndex, int processCount, Proc qArray[]){			//SJF Scheduling Alg im
 
 void rr(int qIndex, int processCount, Proc qArray[], int tq){
 	
-	Proc *tempArray1 = malloc(sizeof(Proc)*processCount);	//create a dynamic array which will be manipulated so that the original is not tampered with
+	Proc *tempArray1 = malloc(sizeof(Proc)*processCount);				//create a dynamic array which will be manipulated so that the original is not tampered with
 	int i;							
 	int burst;
 	int newCount = 0;
 	int occurCount;
 
-	for(i = 0; i < processCount; i++){	//array is passed by reference so here I am storing the contents in the original array into my tempArray
+	for(i = 0; i < processCount; i++){						//array is passed by reference so here I am storing the contents in the original array into my tempArray
                 tempArray1[i] = qArray[i];
         }
 
-	for(i = 0; i < processCount; i++){	//this loop is for counting the amount of extra process entries that must be added to the rr queue
+	for(i = 0; i < processCount; i++){						//this loop is for counting the amount of extra process entries that must be added to the rr queue
 		burst = tempArray1[i].burstNum;
 		occurCount = 0;
 		while(1){
@@ -306,12 +307,12 @@ void rr(int qIndex, int processCount, Proc qArray[], int tq){
 		tempArray1[i].rrOccurence = (occurCount+1);
 	}
 	
-	newCount += processCount;	//add the amount of original processes in the ready queue to the new amount which incorporates a time quantum
+	newCount += processCount;					//add the amount of original processes in the ready queue to the new amount which incorporates a time quantum
 
 	Proc *newArray = realloc(tempArray1, sizeof(Proc)*(newCount));	//realloc the array so that there is more room in the rr ready queue
 	int count = 0;
 
-	for(i = 0; i < newCount; i++){	//populate the new realloc array with the rr algorithim implemented (each process gets at most q time units at once)
+	for(i = 0; i < newCount; i++){					//populate the new realloc array with the rr algorithim implemented (each process gets at most q time units at once)
                 burst = newArray[i].burstNum;
 		if(burst > tq){
     			newArray[i].pNum = tempArray1[i].pNum;
@@ -327,7 +328,7 @@ void rr(int qIndex, int processCount, Proc qArray[], int tq){
 	fprintf(output_fp,"\nReady Queue %d Applying RR Scheduling:\n\nOrder of selection by CPU:\n", qIndex+1);
 
        
-	for(i = 0; i < newCount; i++){	//prints the order of selection 
+	for(i = 0; i < newCount; i++){							//prints the order of selection 
                 printf("p%d ", newArray[i].pNum);
 		fprintf(output_fp,"p%d ", newArray[i].pNum);
        	}
@@ -339,7 +340,7 @@ void rr(int qIndex, int processCount, Proc qArray[], int tq){
 	fprintf(output_fp,"\nTurnaround times for each process:\n");
 
 	int turnAroundTime = 0;
-	int counter = 0;		//counts how many times the same process is found in the queue
+	int counter = 0;								//counts how many times the same process is found in the queue
 	int j;
 					
 	for (i = 0; i < processCount; i++){						//loops through each process
@@ -378,11 +379,11 @@ void rr(int qIndex, int processCount, Proc qArray[], int tq){
                 end--;
         }
 
-	for(i = 0; i < processCount; i++){	//prints out all the turn around times in order from the queue
+	for(i = 0; i < processCount; i++){							//prints out all the turn around times in order from the queue
 		printf("p%d = %d\n", newArray[i].pNum, newArray[i].turnAroundTime);
 		fprintf(output_fp,"p%d = %d\n", newArray[i].pNum, newArray[i].turnAroundTime);
 	}
 
-	free(newArray);	//free dynamic array created in this function
+	free(newArray);										//free dynamic array created in this function
 }
 
